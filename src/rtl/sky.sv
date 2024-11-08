@@ -31,7 +31,7 @@ module sky #(
     output wire  [1:0]    regime_status
 );
     logic state;
-    logic [1:0] frame_cnt;
+    logic [0:0] frame_cnt;
     logic [4:0] ch_dir;
     logic end_of_frame;
     logic h_end, v_end;
@@ -54,13 +54,13 @@ module sky #(
     logic [7:0] par_a;
     logic [10:0] par_a_pulled;
     logic [10:0] par_b_pulled;
-    logic [7:0] base_y;
+    logic [10:0] base_y;
     logic [10:0] base_x;
     logic [15:0] random_par;
     logic  par_part; //0 - y below zero, 1 - y above zero
     assign par_a = {1'b1, random_par[6:0]};
     assign par_b = {1'b1, random_par[12:7]};
-    assign par_a_pulled = {3'b0, par_a};
+    assign par_b_pulled = 11'd100;
     
     random random_inst(
         .clk    ( pixel_clk  ),
@@ -94,10 +94,12 @@ module sky #(
             if ( !road_type[1] )
                 road[0] <= direction ? (road[0] + 1) : (road[0] - 1);
             else if ( road_type[1] ) begin
-                if ( !par_part )
-                    road[0] <= direction ? (base_x + base_y * base_y / par_a_pulled + par_b_pulled) : (base_x - base_y * base_y / par_a_pulled + par_b_pulled);
+                $display(base_y >> 4, ((base_y >> 4) * (base_y >> 4)), base_x + ((base_y >> 4) * (base_y >> 4)) - par_b_pulled);
+                if ( !par_part ) begin
+                    road[0] <= direction ? (base_x + ((base_y >> 4) * (base_y >> 4)) - par_b_pulled) : (base_x - ((base_y >> 4) * (base_y >> 4)) + par_b_pulled);
+                end
                 else if ( par_part )
-                    road[0] <= direction ? (base_x - base_y * base_y / par_a_pulled + par_b_pulled) : (base_x + base_y * base_y / par_a_pulled + par_b_pulled);
+                    road[0] <= direction ? (base_x - ((base_y >> 4) * (base_y >> 4)) + par_b_pulled) : (base_x + ((base_y >> 4) * (base_y >> 4)) - par_b_pulled);
             end
         end
     end
@@ -105,19 +107,18 @@ module sky #(
     // parabola coord generate
     always_ff @(posedge pixel_clk) begin
         if ( !rst_n ) begin
-            base_x <= road[0];
-            base_y <= '0;
+            base_x <=  H_PIXELS / 2 - ROAD_WIDTH / 2;
+            base_y <= 11'd160;
             par_part <= '0;
         end
         else if ( cur_type_len == 8'd0 ) begin
             base_x <= road[0];
-            base_y <= par_a;
+            base_y <= 11'd160;
             par_part <= '0;
         end
         else if ( &frame_cnt && end_of_frame && road_type[1] ) begin
-            if ( base_y == 8'd0 ) begin
+            if ( base_y == 11'd0 ) begin
                 par_part <= '1;
-                base_y <= base_y + 1;
             end
             else if ( par_part )
                 base_y <= base_y + 1;
@@ -128,9 +129,11 @@ module sky #(
 
     always_ff @( posedge pixel_clk ) begin
         if ( !rst_n )
-            cur_type_len <= random_num[7:0];
+            // cur_type_len <= {1'b1, random_num[6:0]};
+            cur_type_len <= 200;
         else if ( cur_type_len == 8'd0 )
-            cur_type_len <= random_num[7:0];
+            // cur_type_len <= {1'b1, random_num[6:0]};
+            cur_type_len <= 200;
         else if ( &frame_cnt && end_of_frame )
             cur_type_len <= cur_type_len - 1;
     end
@@ -142,21 +145,31 @@ module sky #(
             direction = '1;
         else if ( road[0] >= H_PIXELS / 2 + BORDER_WIDTH - ROAD_WIDTH)
             direction = '0;
-        else if ( road_type[0] && (cur_type_len == 8'd0) )
-            direction = '1;
-        else if ( !road_type[0] && (cur_type_len == 8'd0) )
-            direction = '0;
+        // else if ( road_type[0] && (cur_type_len == 8'd0) )
+        //     direction = '1;
+        // else if ( !road_type[0] && (cur_type_len == 8'd0) )
+        //     direction = '0;
     end
 
     always_ff @( posedge pixel_clk ) begin
-        if ( !rst_n )
-            road_type <= random_num[9:8];
-        else if ( road[0] <= H_PIXELS / 2 - BORDER_WIDTH)
+        if ( !rst_n ) begin
+            // road_type <= random_num[9:8];
+            road_type[0] <= random_num[9];
+            road_type[1] <= 1'b1;
+        end
+        else if ( road[0] <= H_PIXELS / 2 - BORDER_WIDTH) begin
+            road_type[0] <= 1'b1;
             road_type[1] <= 1'b0;
-        else if ( road[0] == H_PIXELS / 2 + BORDER_WIDTH - ROAD_WIDTH)
+        end
+        else if ( road[0] >= H_PIXELS / 2 + BORDER_WIDTH - ROAD_WIDTH) begin
+            road_type[0] <= 1'b0;
             road_type[1] <= 1'b0;
-        else if ( cur_type_len == 8'd0 )
-            road_type <= random_num[9:8];
+        end
+        else if ( cur_type_len == 8'd0 ) begin
+            // road_type <= random_num[9:8];
+            road_type[0] <= random_num[9];
+            road_type[1] <= 1'b1;
+        end
     end
     
     always_ff @( posedge pixel_clk ) begin
