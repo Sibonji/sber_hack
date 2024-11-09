@@ -20,9 +20,9 @@ module collision_check #(
             always_ff @( posedge clk ) begin
                 if ( !rst_n )
                     collision[i] <= 1'b0;
-                else if ( object_h_coord <= road[i] )
+                else if ( object_h_coord <= road[object_v_coord + i] )
                     collision[i] <= 1'b1;
-                else if ( (object_h_coord + CAR_H) >= (road[i] + ROAD_WIDTH) )
+                else if ( (object_h_coord + CAR_H) >= (road[object_v_coord + i] + ROAD_WIDTH) )
                     collision[i] <= 1'b1;
             end
         end
