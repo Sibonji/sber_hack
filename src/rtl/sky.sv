@@ -7,28 +7,28 @@ module sky #(
 //--------- Clock & Resets                     --------//
     input  wire           pixel_clk ,  // Pixel clock 25,2 MHz
     input  wire           rst_n     ,  // Active low synchronous reset
-  //--------- Buttons                            --------//
-    input  wire           button_c  ,
-    input  wire           button_u  ,
-    input  wire           button_d  ,
-    input  wire           button_r  ,
-    input  wire           button_l  ,
-  //--------- Accelerometer                      --------//
-    input  wire  [7:0]    accel_data_x         ,
-    input  wire  [7:0]    accel_data_y         ,
-    output logic [7:0]    accel_x_end_of_frame ,
-    output logic [7:0]    accel_y_end_of_frame ,
+  // //--------- Buttons                            --------//
+  //   input  wire           button_c  ,
+  //   input  wire           button_u  ,
+  //   input  wire           button_d  ,
+  //   input  wire           button_r  ,
+  //   input  wire           button_l  ,
+  // //--------- Accelerometer                      --------//
+  //   input  wire  [7:0]    accel_data_x         ,
+  //   input  wire  [7:0]    accel_data_y         ,
+  //   output logic [7:0]    accel_x_end_of_frame ,
+  //   output logic [7:0]    accel_y_end_of_frame ,
   //--------- Pixcels Coordinates                --------//
     input  wire  [10:0]    h_coord   ,
     input  wire  [9:0]     v_coord   ,
   //--------- VGA outputs                        --------//
     output logic  [3:0]    red       ,  // 4-bit color output
     output logic  [3:0]    green     ,  // 4-bit color output
-    output logic  [3:0]    blue      ,  // 4-bit color output
+    output logic  [3:0]    blue        // 4-bit color output
   //--------- Switches for background colour     --------//
 //    input  wire  [2:0]    SW        ,
   //--------- Regime                             --------//
-    output wire  [1:0]    regime_status
+    // output wire  [1:0]    regime_status
 );
     logic state;
     logic [0:0] frame_cnt;
@@ -199,6 +199,6 @@ module sky #(
             blue <= 4'd8;
         end
     end
-    
+
 endmodule
 

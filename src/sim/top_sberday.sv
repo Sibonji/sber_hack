@@ -30,7 +30,7 @@ module top_sberday (
 //____________________________________________________________________________//
 
 //------------- Demo module                                      -------------//
-  game_plane game_demo (
+  game_top game_demo (
     //--------------------- Clock & Reset                ----------------------------//
       .pixel_clk              ( pixel_clk       ),
       .rst_n                  ( ~sim_rst        ),
