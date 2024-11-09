@@ -116,7 +116,7 @@ module game_plane (
   always @ ( posedge pixel_clk ) begin
     if ( !rst_n ) begin // Put object in the center
       object_h_coord <= 399;
-      object_v_coord <= 299;
+      object_v_coord <= 11'd500;
     end
     else if ( end_of_frame && (frames_cntr == 0) ) begin
       if (regime_store == 2'b11) begin  // Buttons regime
@@ -133,18 +133,18 @@ module game_plane (
             object_h_coord <= object_h_coord + object_h_speed;
         end
         //
-        if      ( button_u ) begin
-          if ( object_v_coord < object_v_speed )
-            object_v_coord <= 0;
-          else
-            object_v_coord <= object_v_coord - object_v_speed;
-        end
-        else if ( button_d  ) begin
-          if ( object_v_coord + object_v_speed + object_height >= 10'd599 )
-            object_v_coord <= 10'd599 - object_height;
-          else
-            object_v_coord <= object_v_coord + object_v_speed;
-        end
+//        if      ( button_u ) begin
+//          if ( object_v_coord < object_v_speed )
+//            object_v_coord <= 0;
+//          else
+//            object_v_coord <= object_v_coord - object_v_speed;
+//        end
+//        else if ( button_d  ) begin
+//          if ( object_v_coord + object_v_speed + object_height >= 10'd599 )
+//            object_v_coord <= 10'd599 - object_height;
+//          else
+//            object_v_coord <= object_v_coord + object_v_speed;
+//        end
       end
       else if (regime_store == 2'b10) begin  // Accelerometer regime
         if      ( !accel_data_y_corr[7] && ( accel_data_y_corr != 8'h00 )) begin
@@ -160,18 +160,18 @@ module game_plane (
             object_h_coord <= object_h_coord + object_h_speed;
         end
         //
-        if      ( accel_data_x_corr[7] && ( accel_data_x_corr != 8'h00 ) ) begin
-          if ( object_v_coord < object_v_speed )
-            object_v_coord <= 0;
-          else
-            object_v_coord <= object_v_coord - object_v_speed;
-        end
-        else if (!accel_data_x_corr[7] && ( accel_data_x_corr != 8'h00 ) )  begin
-          if ( object_v_coord + object_v_speed + object_height >= 10'd599 )
-            object_v_coord <= 10'd599 - object_height;
-          else
-            object_v_coord <= object_v_coord + object_v_speed;
-        end
+//        if      ( accel_data_x_corr[7] && ( accel_data_x_corr != 8'h00 ) ) begin
+//          if ( object_v_coord < object_v_speed )
+//            object_v_coord <= 0;
+//          else
+//            object_v_coord <= object_v_coord - object_v_speed;
+//        end
+//        else if (!accel_data_x_corr[7] && ( accel_data_x_corr != 8'h00 ) )  begin
+//          if ( object_v_coord + object_v_speed + object_height >= 10'd599 )
+//            object_v_coord <= 10'd599 - object_height;
+//          else
+//            object_v_coord <= object_v_coord + object_v_speed;
+//        end
       end
     end
   end
@@ -202,11 +202,11 @@ module game_plane (
       end
       else begin
         logo_offset_h = {1'b0, object_h_coord};
-        logo_offset_v = 11'd500;
+        logo_offset_v = {1'b0, object_v_coord};
       end
     end
 
-    assign plane_logo_read_address = {1'b0, h_coord} - logo_offset_h + ({2'b0, v_coord} - logo_offset_v)*logo_size_h;
+    assign plane_logo_read_address = h_coord - logo_offset_h + ({1'b0, v_coord} - logo_offset_v)*logo_size_h;
 
     //for picture with size 128x128 we need 16384 pixel information
     plane_logo_rom #(
