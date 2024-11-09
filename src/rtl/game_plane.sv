@@ -181,17 +181,31 @@ module game_plane (
     always @ ( posedge pixel_clk ) begin
       if      ( !rst_n )
         plane_logo_counter <= 32'b0;
-      else if ( plane_logo_counter <= 32'h6ff_ffff )
+      else if ( plane_logo_counter <= 32'h5ff_ffff )
         plane_logo_counter <= plane_logo_counter + 1'b1;
     end
-    assign plane_logo_active = ( plane_logo_counter < 32'h6ff_ffff );
+    assign plane_logo_active = ( plane_logo_counter < 32'h5ff_ffff );
   //----------- SBER logo ROM                                    -----------//
     // Screen resoulution is 800x600, the logo size is 128x128. We need to put the logo in the center.
     // Logo offset = (800-128)/2=336 from the left edge; Logo v coord = (600-128)/2 = 236
     // Cause we need 1 clock for reading, we start erlier
     
-    reg [11:0] logo_offset_h = (800-logo_size_h)/2 - 1;
-    reg [11:0] logo_offset_v = (600-logo_size_v)/2 - 1;
+    logic [11:0] logo_offset_h_init = (800-logo_size_h)/2 - 1;
+    logic [11:0] logo_offset_v_init = (600-logo_size_v)/2 - 1;
+    logic [11:0] logo_offset_h;
+    logic [11:0] logo_offset_v;
+    
+    always_comb begin
+      if (plane_logo_active) begin
+        logo_offset_h = logo_offset_h_init;
+        logo_offset_v = logo_offset_v_init;
+      end
+      else begin
+        logo_offset_h = {2'b0, object_h_coord};
+        logo_offset_v = {2'b0, object_v_coord};
+      end
+    end
+
     assign plane_logo_read_address = {1'b0, h_coord} - logo_offset_h + ({2'b0, v_coord} - logo_offset_v)*logo_size_h;
 
     //for picture with size 128x128 we need 16384 pixel information
@@ -206,15 +220,16 @@ module game_plane (
 
 //------------- RGB MUX outputs                                  -------------//
 
-  always_comb begin
-    if ( plane_logo_active ) begin
-      object_draw = (h_coord[9:0] >= logo_offset_h[9:0]) & (h_coord[9:0] < (logo_offset_h[9:0] + logo_size_h)) & (v_coord >= logo_offset_v[9:0]) & (v_coord < (logo_offset_v[9:0] + logo_size_v)) & ~(plane_logo_rom_out[11:0]==12'h000) ; // Logo size is 128x128 Pixcels
-    end
-    else begin
-      object_draw = ( h_coord[9:0] >= object_h_coord ) & ( h_coord[9:0] <= (object_h_coord + object_width  )) &
-                    ( v_coord >= object_v_coord ) & ( v_coord <= (object_v_coord + object_height ));
-    end
-  end
+  assign object_draw = (h_coord[9:0] >= logo_offset_h[9:0]) & (h_coord[9:0] < (logo_offset_h[9:0] + logo_size_h)) & (v_coord >= logo_offset_v[9:0]) & (v_coord < (logo_offset_v[9:0] + logo_size_v)) & ~(plane_logo_rom_out[11:0]==12'h000) ;
+  // always_comb begin
+  //   if ( plane_logo_active ) begin
+  //     object_draw = (h_coord[9:0] >= logo_offset_h[9:0]) & (h_coord[9:0] < (logo_offset_h[9:0] + logo_size_h)) & (v_coord >= logo_offset_v[9:0]) & (v_coord < (logo_offset_v[9:0] + logo_size_v)) & ~(plane_logo_rom_out[11:0]==12'h000) ; // Logo size is 128x128 Pixcels
+  //   end
+  //   else begin
+  //     object_draw = ( h_coord[9:0] >= object_h_coord ) & ( h_coord[9:0] <= (object_h_coord + object_width  )) &
+  //                   ( v_coord >= object_v_coord ) & ( v_coord <= (object_v_coord + object_height ));
+  //   end
+  // end
 
   assign  red     = object_draw ? ( ~plane_logo_active ? 4'hf : plane_logo_rom_out[3:0]  ) : (SW[0] ? 4'h8 : 4'h0);
   assign  green   = object_draw ? ( ~plane_logo_active ? 4'hf : plane_logo_rom_out[7:4]  ) : (SW[1] ? 4'h8 : 4'h0);
