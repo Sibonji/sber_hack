@@ -168,48 +168,7 @@ module sberday_nexys_a7_svga (
 //____________________________________________________________________________//
 
 //------------- Demo module                                      -------------//
-//  game_plane game_demo (
-//    //--------------------- Clock & Reset                ----------------------------//
-//      .pixel_clk              ( pixel_clk          ),
-//      .rst_n                  ( rst_n              ),
-//    //--------------------- Accelerometer                ----------------------------//
-//      .accel_data_x           ( accel_data_x         ),
-//      .accel_data_y           ( accel_data_y         ),
-//      .accel_x_end_of_frame   ( accel_x_end_of_frame ),
-//      .accel_y_end_of_frame   ( accel_y_end_of_frame ),
-//    //--------------------- Buttons                      ----------------------------//
-//      .button_c               ( button_c           ),
-//      .button_u               ( button_u           ),
-//      .button_d               ( button_d           ),
-//      .button_r               ( button_r           ),
-//      .button_l               ( button_l           ),
-//    //--------------------- Pixcels Coordinates          ----------------------------//
-//      .h_coord                ( h_coord[10:0]      ),  // only bottom 11 bits needed to count to 800
-//      .v_coord                ( v_coord[ 9:0]      ),  // only bottom 10 bits needed to count to 600
-//    //--------------------- VGA outputs from demo        ----------------------------//
-//      .red                    ( red                ),  // 4-bit color output
-//      .green                  ( green              ),  // 4-bit color output
-//      .blue                   ( blue               ),  // 4-bit color output
-//    //--------------------- Switches for demo            ----------------------------//
-//      .SW                     ( SW [2:0]           ),  // We are using switches to change background
-//    //--------------------- Demo regime status           ----------------------------//
-//      .demo_regime_status     ( demo_regime_status )   // Red led on the board which show REGIME
-//  );
-
-//    hd_test hs_test_inst (
-////    //--------------------- Clock & Reset                ----------------------------//
-//      .pixel_clk              ( pixel_clk          ),
-//      .rst_n                  ( rst_n              ),
-//    //--------------------- Pixcels Coordinates          ----------------------------//
-//      .h_coord                ( h_coord[10:0]       ),    // only bottom 10 bits needed to count to 640
-//      .v_coord                ( v_coord[10:0]       ),    // only bottom  9 bits needed to count to 480
-//    //--------------------- VGA outputs from demo        ----------------------------//
-//      .red                    ( red                ),  // 4-bit color output
-//      .green                  ( green              ),  // 4-bit color output
-//      .blue                   ( blue               )   // 4-bit color output
-//    );
-
-  sky sky_inst (
+  game_plane game_demo (
     //--------------------- Clock & Reset                ----------------------------//
       .pixel_clk              ( pixel_clk          ),
       .rst_n                  ( rst_n              ),
@@ -232,10 +191,51 @@ module sberday_nexys_a7_svga (
       .green                  ( green              ),  // 4-bit color output
       .blue                   ( blue               ),  // 4-bit color output
     //--------------------- Switches for demo            ----------------------------//
-//      .SW                     ( SW [2:0]           ),  // We are using switches to change background
+      .SW                     ( SW [2:0]           ),  // We are using switches to change background
     //--------------------- Demo regime status           ----------------------------//
-      .regime_status     ( demo_regime_status )   // Red led on the board which show REGIME
+      .demo_regime_status     ( demo_regime_status )   // Red led on the board which show REGIME
   );
+
+//    hd_test hs_test_inst (
+////    //--------------------- Clock & Reset                ----------------------------//
+//      .pixel_clk              ( pixel_clk          ),
+//      .rst_n                  ( rst_n              ),
+//    //--------------------- Pixcels Coordinates          ----------------------------//
+//      .h_coord                ( h_coord[10:0]       ),    // only bottom 10 bits needed to count to 640
+//      .v_coord                ( v_coord[10:0]       ),    // only bottom  9 bits needed to count to 480
+//    //--------------------- VGA outputs from demo        ----------------------------//
+//      .red                    ( red                ),  // 4-bit color output
+//      .green                  ( green              ),  // 4-bit color output
+//      .blue                   ( blue               )   // 4-bit color output
+//    );
+
+//  sky sky_inst (
+//    //--------------------- Clock & Reset                ----------------------------//
+//      .pixel_clk              ( pixel_clk          ),
+//      .rst_n                  ( rst_n              ),
+//    //--------------------- Accelerometer                ----------------------------//
+//      .accel_data_x           ( accel_data_x         ),
+//      .accel_data_y           ( accel_data_y         ),
+//      .accel_x_end_of_frame   ( accel_x_end_of_frame ),
+//      .accel_y_end_of_frame   ( accel_y_end_of_frame ),
+//    //--------------------- Buttons                      ----------------------------//
+//      .button_c               ( button_c           ),
+//      .button_u               ( button_u           ),
+//      .button_d               ( button_d           ),
+//      .button_r               ( button_r           ),
+//      .button_l               ( button_l           ),
+//    //--------------------- Pixcels Coordinates          ----------------------------//
+//      .h_coord                ( h_coord[10:0]      ),  // only bottom 11 bits needed to count to 800
+//      .v_coord                ( v_coord[ 9:0]      ),  // only bottom 10 bits needed to count to 600
+//    //--------------------- VGA outputs from demo        ----------------------------//
+//      .red                    ( red                ),  // 4-bit color output
+//      .green                  ( green              ),  // 4-bit color output
+//      .blue                   ( blue               ),  // 4-bit color output
+//    //--------------------- Switches for demo            ----------------------------//
+////      .SW                     ( SW [2:0]           ),  // We are using switches to change background
+//    //--------------------- Demo regime status           ----------------------------//
+//      .regime_status     ( demo_regime_status )   // Red led on the board which show REGIME
+//  );
 
 //____________________________________________________________________________//
 

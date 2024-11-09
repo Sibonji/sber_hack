@@ -49,8 +49,8 @@ module game_plane (
     //  |   V heigh
     //  |
     //  V
-    parameter     logo_size_v   = 50 ;
-    parameter     logo_size_h   = 61 ;
+    parameter     logo_size_v   = 32 ;
+    parameter     logo_size_h   = 32 ;
     parameter     object_width  = 8  ;         // Horizontal width
     parameter     object_height = 20 ;         // Vertical height
     logic         object_draw        ;         // Is Sber Logo or demo object coordinate (with width and height)?
@@ -181,19 +181,19 @@ module game_plane (
     always @ ( posedge pixel_clk ) begin
       if      ( !rst_n )
         plane_logo_counter <= 32'b0;
-      else if ( plane_logo_counter <= 32'h5ff_ffff )
+      else if ( plane_logo_counter <= 32'hfff_ffff )
         plane_logo_counter <= plane_logo_counter + 1'b1;
     end
-    assign plane_logo_active = ( plane_logo_counter < 32'h5ff_ffff );
+    assign plane_logo_active = ( plane_logo_counter < 32'hfff_ffff );
   //----------- SBER logo ROM                                    -----------//
     // Screen resoulution is 800x600, the logo size is 128x128. We need to put the logo in the center.
     // Logo offset = (800-128)/2=336 from the left edge; Logo v coord = (600-128)/2 = 236
     // Cause we need 1 clock for reading, we start erlier
     
-    logic [11:0] logo_offset_h_init = (800-logo_size_h)/2 - 1;
-    logic [11:0] logo_offset_v_init = (600-logo_size_v)/2 - 1;
-    logic [11:0] logo_offset_h;
-    logic [11:0] logo_offset_v;
+    logic [10:0] logo_offset_h_init = (800-logo_size_h)/2 - 1;
+    logic [10:0] logo_offset_v_init = (600-logo_size_v)/2 - 1;
+    logic [10:0] logo_offset_h;
+    logic [10:0] logo_offset_v;
     
     always_comb begin
       if (plane_logo_active) begin
@@ -201,8 +201,8 @@ module game_plane (
         logo_offset_v = logo_offset_v_init;
       end
       else begin
-        logo_offset_h = {2'b0, object_h_coord};
-        logo_offset_v = {2'b0, object_v_coord};
+        logo_offset_h = {1'b0, object_h_coord};
+        logo_offset_v = 11'd500;
       end
     end
 

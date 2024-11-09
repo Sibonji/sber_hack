@@ -3,8 +3,8 @@ new_size = 50
 
 image = Image.open('./figures/plane.png').convert('RGB')
 image_size = image.size
-image_ratio = image.size[0]/image.size[1]
-# image_ratio = 1
+# image_ratio = image.size[0]/image.size[1]
+image_ratio = 1
 print(f"Original size, new size : {image.size}, ({int(new_size*image_ratio)}, {new_size})")
 image_resized = image.resize((int(new_size*image_ratio), new_size))
 
