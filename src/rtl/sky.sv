@@ -98,7 +98,7 @@ module sky #(
         end
     end
     assign change_regime      = button_c    ;
-    assign demo_regime_status = regime_store;
+    assign regime_status = regime_store;
 
     //------------------------- Accelerometr at the end of frame-------------------------//
     always @ ( posedge pixel_clk ) begin
@@ -311,6 +311,8 @@ module sky #(
             blue <= '1;
         end
     end
+
+    
     
 endmodule
 
