@@ -70,6 +70,9 @@ module sky #(
     parameter CAR_H = 40;
     parameter CAR_START_V = V_PIXELS - 150;
     parameter CAR_START_H = H_PIXELS / 2 - CAR_H / 2;
+    logic collision [V_PIXELS - 1:0];
+    logic stop;
+    assign stop = |collision;
 
     reg       [1:0]   regime_store  ;         // Two demonstration regimes
     wire              change_regime ;
@@ -113,6 +116,9 @@ module sky #(
             accel_y_end_of_frame <= accel_data_y_corr;
         end
     end
+
+
+
     // Accelerometr corrections
     assign accel_data_x_corr = accel_data_x + ACCEL_X_CORR;
     assign accel_data_y_corr = accel_data_y + ACCEL_Y_CORR;
@@ -204,7 +210,7 @@ module sky #(
         else if ( (frames_cntr == 0) && end_of_frame) begin
             $display(road[0], base_x, mult_res[10:0], base_x + mult_res[10:0] - par_b_pulled);
             $display("Part: ", par_part, ", direction: ", direction, ", Road type: ", road_type[1], road_type[0], ", v len: ", cur_type_len);
-            $display("Left: ", button_l, ", right: ", button_r);
+            $display("Stop: ", stop);
             if ( !road_type[1] )
                 road[0] <= direction ? (road[0] + 1) : (road[0] - 1);
             else if ( road_type[1] ) begin
@@ -291,6 +297,9 @@ module sky #(
     always_ff @( posedge pixel_clk ) begin
         if ( !rst_n )
             frames_cntr <= '0;
+        else if ( stop ) begin
+            frames_cntr <= 0;
+        end
         else if ( frames_cntr == frames_per_act )
             frames_cntr <= 0;   
         else if ( end_of_frame )
@@ -332,7 +341,14 @@ module sky #(
         end
     end
 
-
+    collision_check road_collision_check (
+        .clk ( pixel_clk ),
+        .rst_n ( rst_n ),
+        .collision ( collision ),
+        .road ( road ),
+        .object_h_coord ( object_h_coord ),
+        .object_v_coord ( object_v_coord )
+    );
     
 endmodule
 
