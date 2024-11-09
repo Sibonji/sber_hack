@@ -1,7 +1,7 @@
 module sky #(
     parameter H_PIXELS = 800,
     parameter V_PIXELS = 600,
-    parameter ROAD_WIDTH = 90,
+    parameter ROAD_WIDTH = 130,
     parameter BORDER_WIDTH = 250
 ) (
 //--------- Clock & Resets                     --------//
@@ -32,7 +32,7 @@ module sky #(
 );
     logic [1:0] demo_regime_status;
     logic state;
-    logic [0:0] frames_cntr;
+    logic [5:0] frames_cntr;
     logic [4:0] ch_dir;
     logic end_of_frame;
     logic h_end, v_end;
@@ -75,6 +75,8 @@ module sky #(
     wire              change_regime ;
     //----------------------- Counters                     --------------------------//
     parameter         FRAMES_PER_ACTION = 2;  // Action delay
+    parameter MAX_FRAMES_PER_ACTION = 16;
+    logic [5:0] frames_per_act;
     //----------------------- Accelerometr                 --------------------------//
     parameter     ACCEL_X_CORR = 8'd3;        // Accelerometer x correction
     parameter     ACCEL_Y_CORR = 8'd1;        // Accelerometer y correction
@@ -154,6 +156,22 @@ module sky #(
         end
     end
 
+    // road speed change
+    always @ ( posedge pixel_clk ) begin
+        if ( !rst_n ) begin 
+            frames_per_act <= FRAMES_PER_ACTION;
+        end
+        else if ( end_of_frame && (frames_cntr == 0) ) begin
+            if ( button_u ) begin
+              if ( frames_per_act >= 1 )
+                frames_per_act <= frames_per_act - 1;
+            end
+            else if ( button_d  ) begin
+              if ( frames_per_act != MAX_FRAMES_PER_ACTION )
+                frames_per_act <= frames_per_act + 1;
+            end
+        end
+      end
     
     random random_inst(
         .clk    ( pixel_clk  ),
@@ -173,7 +191,7 @@ module sky #(
             always_ff @( posedge pixel_clk ) begin
                 if ( !rst_n )
                     road[i] <= H_PIXELS / 2 - ROAD_WIDTH / 2;
-                else if ( &frames_cntr && end_of_frame )
+                else if ( (frames_cntr == 0) && end_of_frame )
                     road[i] <= road[i - 1];
             end
         end
@@ -183,7 +201,7 @@ module sky #(
         if ( !rst_n ) begin
             road[0] <= H_PIXELS / 2 - ROAD_WIDTH / 2;
         end
-        else if ( &frames_cntr && end_of_frame) begin
+        else if ( (frames_cntr == 0) && end_of_frame) begin
             $display(road[0], base_x, mult_res[10:0], base_x + mult_res[10:0] - par_b_pulled);
             $display("Part: ", par_part, ", direction: ", direction, ", Road type: ", road_type[1], road_type[0], ", v len: ", cur_type_len);
             $display("Left: ", button_l, ", right: ", button_r);
@@ -211,7 +229,7 @@ module sky #(
             base_y <= 16'd160;
             par_part <= '0;
         end
-        else if ( &frames_cntr && end_of_frame && road_type[1] ) begin
+        else if ( (frames_cntr == 0) && end_of_frame && road_type[1] ) begin
             if ( base_y == 16'd0 ) begin
                 par_part <= '1;
                 base_y <= base_y + 1;
@@ -230,7 +248,7 @@ module sky #(
         else if ( cur_type_len == 9'd0 )
             cur_type_len <= random_num[8:0];
             // cur_type_len <= 200;
-        else if ( &frames_cntr && end_of_frame )
+        else if ( (frames_cntr == 0) && end_of_frame )
             cur_type_len <= cur_type_len - 1;
     end
     
@@ -273,6 +291,8 @@ module sky #(
     always_ff @( posedge pixel_clk ) begin
         if ( !rst_n )
             frames_cntr <= '0;
+        else if ( frames_cntr == frames_per_act )
+            frames_cntr <= 0;   
         else if ( end_of_frame )
             frames_cntr <= frames_cntr + 1;
     end
@@ -312,7 +332,7 @@ module sky #(
         end
     end
 
-    
+
     
 endmodule
 
