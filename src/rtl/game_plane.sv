@@ -1,4 +1,4 @@
-module game (
+module game_plane (
   //--------- Clock & Resets                     --------//
     input  wire           pixel_clk ,  // Pixel clock 36 MHz
     input  wire           rst_n     ,  // Active low synchronous reset
@@ -49,8 +49,8 @@ module game (
     //  |   V heigh
     //  |
     //  V
-    parameter     logo_size_v   = 128;
-    parameter     logo_size_h   = 128;
+    parameter     logo_size_v   = 50 ;
+    parameter     logo_size_h   = 61 ;
     parameter     object_width  = 8  ;         // Horizontal width
     parameter     object_height = 20 ;         // Vertical height
     logic         object_draw        ;         // Is Sber Logo or demo object coordinate (with width and height)?
@@ -59,11 +59,11 @@ module game (
     logic [9:0]   object_h_speed     ;         // Horizontal Object movement speed
     logic [9:0]   object_v_speed     ;         // Vertical Object movement speed
   //----------------------- Sber logo timer              --------------------------//
-    logic [31:0]  sber_logo_counter     ;      // Counter is counting how long showing Sber logo
-    wire          sber_logo_active      ;      // Demonstrating Sber logo
+    logic [31:0]  plane_logo_counter     ;      // Counter is counting how long showing Sber logo
+    wire          plane_logo_active      ;      // Demonstrating Sber logo
     // Read only memory (ROM) for sber logo file
-    wire  [11:0]  sber_logo_rom_out     ;
-    wire  [13:0]  sber_logo_read_address;
+    wire  [11:0]  plane_logo_rom_out     ;
+    wire  [11:0]  plane_logo_read_address;
 //------------------------- End of Frame                 ----------------------------//
   // We recount game object once at the end of display counter //
   always_ff @( posedge pixel_clk ) begin
@@ -180,33 +180,35 @@ module game (
   //----------- How long to show Sber logo                       -----------//
     always @ ( posedge pixel_clk ) begin
       if      ( !rst_n )
-        sber_logo_counter <= 32'b0;
-      else if ( sber_logo_counter <= 32'h4ff_ffff )
-        sber_logo_counter <= sber_logo_counter + 1'b1;
+        plane_logo_counter <= 32'b0;
+      else if ( plane_logo_counter <= 32'h6ff_ffff )
+        plane_logo_counter <= plane_logo_counter + 1'b1;
     end
-    assign sber_logo_active = ( sber_logo_counter < 32'h4ff_ffff );
+    assign plane_logo_active = ( plane_logo_counter < 32'h6ff_ffff );
   //----------- SBER logo ROM                                    -----------//
     // Screen resoulution is 800x600, the logo size is 128x128. We need to put the logo in the center.
     // Logo offset = (800-128)/2=336 from the left edge; Logo v coord = (600-128)/2 = 236
     // Cause we need 1 clock for reading, we start erlier
-    reg [13:0] logo_offset_h = (800-logo_size_h)/2 - 1;
-    reg [13:0] logo_offset_v = (600-logo_size_v)/2 - 1;
-    assign sber_logo_read_address = {3'b0, h_coord} - logo_offset_h + ({4'b0, v_coord} - logo_offset_v)*logo_size_h;
+    
+    reg [11:0] logo_offset_h = (800-logo_size_h)/2 - 1;
+    reg [11:0] logo_offset_v = (600-logo_size_v)/2 - 1;
+    assign plane_logo_read_address = {1'b0, h_coord} - logo_offset_h + ({2'b0, v_coord} - logo_offset_v)*logo_size_h;
 
     //for picture with size 128x128 we need 16384 pixel information
-    sber_logo_rom #(
+    plane_logo_rom #(
       .size_h (logo_size_h),
       .size_v (logo_size_v)
-    ) sber_logo_rom (
-      .addr ( sber_logo_read_address ),
-      .word ( sber_logo_rom_out      ) 
+    ) plane_logo_rom (
+      .addr ( plane_logo_read_address ),
+      .word ( plane_logo_rom_out      ) 
     );
 //____________________________________________________________________________//
 
 //------------- RGB MUX outputs                                  -------------//
+
   always_comb begin
-    if ( sber_logo_active ) begin
-      object_draw = (h_coord[9:0] >= logo_offset_h[9:0]) & (h_coord[9:0] < (logo_offset_h[9:0] + logo_size_h)) & (v_coord >= logo_offset_v[9:0]) & (v_coord < (logo_offset_v[9:0] + logo_size_v)) & ~(sber_logo_rom_out[11:0]==12'h000) ; // Logo size is 128x128 Pixcels
+    if ( plane_logo_active ) begin
+      object_draw = (h_coord[9:0] >= logo_offset_h[9:0]) & (h_coord[9:0] < (logo_offset_h[9:0] + logo_size_h)) & (v_coord >= logo_offset_v[9:0]) & (v_coord < (logo_offset_v[9:0] + logo_size_v)) & ~(plane_logo_rom_out[11:0]==12'h000) ; // Logo size is 128x128 Pixcels
     end
     else begin
       object_draw = ( h_coord[9:0] >= object_h_coord ) & ( h_coord[9:0] <= (object_h_coord + object_width  )) &
@@ -214,8 +216,8 @@ module game (
     end
   end
 
-  assign  red     = object_draw ? ( ~sber_logo_active ? 4'hf : sber_logo_rom_out[3:0]  ) : (SW[0] ? 4'h8 : 4'h0);
-  assign  green   = object_draw ? ( ~sber_logo_active ? 4'hf : sber_logo_rom_out[7:4]  ) : (SW[1] ? 4'h8 : 4'h0);
-  assign  blue    = object_draw ? ( ~sber_logo_active ? 4'hf : sber_logo_rom_out[11:8] ) : (SW[2] ? 4'h8 : 4'h0);
+  assign  red     = object_draw ? ( ~plane_logo_active ? 4'hf : plane_logo_rom_out[3:0]  ) : (SW[0] ? 4'h8 : 4'h0);
+  assign  green   = object_draw ? ( ~plane_logo_active ? 4'hf : plane_logo_rom_out[7:4]  ) : (SW[1] ? 4'h8 : 4'h0);
+  assign  blue    = object_draw ? ( ~plane_logo_active ? 4'hf : plane_logo_rom_out[11:8] ) : (SW[2] ? 4'h8 : 4'h0);
 //____________________________________________________________________________//
 endmodule

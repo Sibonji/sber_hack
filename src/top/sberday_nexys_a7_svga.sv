@@ -168,7 +168,7 @@ module sberday_nexys_a7_svga (
 //____________________________________________________________________________//
 
 //------------- Demo module                                      -------------//
-//  game game_demo (
+//  game_plane game_demo (
 //    //--------------------- Clock & Reset                ----------------------------//
 //      .pixel_clk              ( pixel_clk          ),
 //      .rst_n                  ( rst_n              ),

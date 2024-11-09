@@ -29,69 +29,69 @@ module top_sberday (
   logic         disp_enbl;
 //____________________________________________________________________________//
 
-//------------- Demo module                                      -------------//
-  // game game_demo (
-  //   //--------------------- Clock & Reset                ----------------------------//
-  //     .pixel_clk              ( pixel_clk       ),
-  //     .rst_n                  ( ~sim_rst        ),
-  //   //--------------------- Buttons                      ----------------------------//
-  //     .button_c               ( button_c        ),
-  //     .button_u               ( button_u        ),
-  //     .button_d               ( button_d        ),
-  //     .button_r               ( button_r        ),
-  //     .button_l               ( button_l        ),
-  //   //--------------------- Accelerometer                ----------------------------//
-  //     .accel_data_x           ( accel_data_x    ),
-  //     .accel_data_y           ( accel_data_y    ),
-  //     /* verilator lint_off PINCONNECTEMPTY */
-  //     .accel_x_end_of_frame   (                 ),
-  //     .accel_y_end_of_frame   (                 ),
-  //     /* verilator lint_on PINCONNECTEMPTY */
-  //   //--------------------- Pixcels Coordinates          ----------------------------//
-  //     .h_coord                ( h_coord[10:0]   ),  // only bottom 11 bits needed to count to 800
-  //     .v_coord                ( v_coord[ 9:0]   ),  // only bottom 10 bits needed to count to 600
-  //   //--------------------- VGA outputs from demo        ----------------------------//
-  //     .red                    ( red             ),  // 4-bit color output
-  //     .green                  ( green           ),  // 4-bit color output
-  //     .blue                   ( blue            ),  // 4-bit color output
-  //   //--------------------- Switches for demo            ----------------------------//
-  //     .SW                     ( {sw2, sw1, sw0} ),  // We are using switches to change background
-  //   //--------------------- Demo regime status           ----------------------------//
-  //     /* verilator lint_off PINCONNECTEMPTY */
-  //     .demo_regime_status     (                 )   // Red led on the board which show REGIME
-  //     /* verilator lint_on PINCONNECTEMPTY */
-  // );
-
-  sky sky_inst (
+// ------------- Demo module                                      -------------//
+  game_plane game_demo (
     //--------------------- Clock & Reset                ----------------------------//
-      .pixel_clk              ( pixel_clk          ),
-      // .rst_n                  ( rst_n              ),
+      .pixel_clk              ( pixel_clk       ),
       .rst_n                  ( ~sim_rst        ),
+    //--------------------- Buttons                      ----------------------------//
+      .button_c               ( button_c        ),
+      .button_u               ( button_u        ),
+      .button_d               ( button_d        ),
+      .button_r               ( button_r        ),
+      .button_l               ( button_l        ),
     //--------------------- Accelerometer                ----------------------------//
-      .accel_data_x           ( accel_data_x         ),
-      .accel_data_y           ( accel_data_y         ),
-      // .accel_x_end_of_frame   ( accel_x_end_of_frame ),
-      // .accel_y_end_of_frame   ( accel_y_end_of_frame ),
+      .accel_data_x           ( accel_data_x    ),
+      .accel_data_y           ( accel_data_y    ),
+      /* verilator lint_off PINCONNECTEMPTY */
       .accel_x_end_of_frame   (                 ),
       .accel_y_end_of_frame   (                 ),
-    //--------------------- Buttons                      ----------------------------//
-      .button_c               ( button_c           ),
-      .button_u               ( button_u           ),
-      .button_d               ( button_d           ),
-      .button_r               ( button_r           ),
-      .button_l               ( button_l           ),
+      /* verilator lint_on PINCONNECTEMPTY */
     //--------------------- Pixcels Coordinates          ----------------------------//
-      .h_coord                ( h_coord[10:0]      ),  // only bottom 11 bits needed to count to 800
-      .v_coord                ( v_coord[ 9:0]      ),  // only bottom 10 bits needed to count to 600
+      .h_coord                ( h_coord[10:0]   ),  // only bottom 11 bits needed to count to 800
+      .v_coord                ( v_coord[ 9:0]   ),  // only bottom 10 bits needed to count to 600
     //--------------------- VGA outputs from demo        ----------------------------//
-      .red                    ( red                ),  // 4-bit color output
-      .green                  ( green              ),  // 4-bit color output
-      .blue                   ( blue               ),  // 4-bit color output
+      .red                    ( red             ),  // 4-bit color output
+      .green                  ( green           ),  // 4-bit color output
+      .blue                   ( blue            ),  // 4-bit color output
     //--------------------- Switches for demo            ----------------------------//
-//      .SW                     ( SW [2:0]           ),  // We are using switches to change background
+      .SW                     ( {sw2, sw1, sw0} ),  // We are using switches to change background
     //--------------------- Demo regime status           ----------------------------//
-      .regime_status     (  )   // Red led on the board which show REGIME
+      /* verilator lint_off PINCONNECTEMPTY */
+      .demo_regime_status     (                 )   // Red led on the board which show REGIME
+      /* verilator lint_on PINCONNECTEMPTY */
   );
+
+//   sky sky_inst (
+//     //--------------------- Clock & Reset                ----------------------------//
+//       .pixel_clk              ( pixel_clk          ),
+//       // .rst_n                  ( rst_n              ),
+//       .rst_n                  ( ~sim_rst        ),
+//     //--------------------- Accelerometer                ----------------------------//
+//       .accel_data_x           ( accel_data_x         ),
+//       .accel_data_y           ( accel_data_y         ),
+//       // .accel_x_end_of_frame   ( accel_x_end_of_frame ),
+//       // .accel_y_end_of_frame   ( accel_y_end_of_frame ),
+//       .accel_x_end_of_frame   (                 ),
+//       .accel_y_end_of_frame   (                 ),
+//     //--------------------- Buttons                      ----------------------------//
+//       .button_c               ( button_c           ),
+//       .button_u               ( button_u           ),
+//       .button_d               ( button_d           ),
+//       .button_r               ( button_r           ),
+//       .button_l               ( button_l           ),
+//     //--------------------- Pixcels Coordinates          ----------------------------//
+//       .h_coord                ( h_coord[10:0]      ),  // only bottom 11 bits needed to count to 800
+//       .v_coord                ( v_coord[ 9:0]      ),  // only bottom 10 bits needed to count to 600
+//     //--------------------- VGA outputs from demo        ----------------------------//
+//       .red                    ( red                ),  // 4-bit color output
+//       .green                  ( green              ),  // 4-bit color output
+//       .blue                   ( blue               ),  // 4-bit color output
+//     //--------------------- Switches for demo            ----------------------------//
+// //      .SW                     ( SW [2:0]           ),  // We are using switches to change background
+//     //--------------------- Demo regime status           ----------------------------//
+//       .regime_status     (  )   // Red led on the board which show REGIME
+//   );
 
 
 //____________________________________________________________________________//
