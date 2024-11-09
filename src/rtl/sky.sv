@@ -70,7 +70,7 @@ module sky #(
     parameter CAR_H = 40;
     parameter CAR_START_V = V_PIXELS - 150;
     parameter CAR_START_H = H_PIXELS / 2 - CAR_H / 2;
-    logic collision [V_PIXELS - 1:0];
+    logic [V_PIXELS - 1:0] collision;
     logic stop;
     assign stop = |collision;
 
@@ -128,6 +128,7 @@ module sky #(
     always @ ( posedge pixel_clk ) begin
         if ( !rst_n ) begin // Put object in the center
             object_h_coord <= H_PIXELS / 2 - CAR_H / 2;
+            // object_h_coord <= 150 - CAR_H / 2;
             object_v_coord <= V_PIXELS - 150;
         end
         else if ( end_of_frame && (frames_cntr == 0) ) begin
@@ -210,7 +211,7 @@ module sky #(
         else if ( (frames_cntr == 0) && end_of_frame) begin
             $display(road[0], base_x, mult_res[10:0], base_x + mult_res[10:0] - par_b_pulled);
             $display("Part: ", par_part, ", direction: ", direction, ", Road type: ", road_type[1], road_type[0], ", v len: ", cur_type_len);
-            $display("Stop: ", stop);
+            $display("Stop: ", stop, " obj coord: ", object_h_coord, " road: ", road[V_PIXELS - 160], " object_h_coord + CAR_H ", object_h_coord + CAR_H, " road[i] + ROAD_WIDTH ", road[V_PIXELS - 160] + ROAD_WIDTH);
             if ( !road_type[1] )
                 road[0] <= direction ? (road[0] + 1) : (road[0] - 1);
             else if ( road_type[1] ) begin
@@ -298,7 +299,7 @@ module sky #(
         if ( !rst_n )
             frames_cntr <= '0;
         else if ( stop ) begin
-            frames_cntr <= 0;
+            frames_cntr <= 1;
         end
         else if ( frames_cntr == frames_per_act )
             frames_cntr <= 0;   

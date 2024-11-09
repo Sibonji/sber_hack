@@ -8,7 +8,7 @@ module collision_check #(
 ) (
     input clk,
     input rst_n,
-    output logic collision [V_PIXELS - 1:0],
+    output logic [V_PIXELS - 1:0] collision,
     input logic [10:0] road[V_PIXELS - 1:0],
     input logic [10:0] object_h_coord,
     input logic [10:0] object_v_coord
@@ -20,7 +20,9 @@ module collision_check #(
             always_ff @( posedge clk ) begin
                 if ( !rst_n )
                     collision[i] <= 1'b0;
-                else if ( (object_h_coord <= road[i]) && ((object_h_coord + CAR_H) >= (road[i] + ROAD_WIDTH)) )
+                else if ( object_h_coord <= road[i] )
+                    collision[i] <= 1'b1;
+                else if ( (object_h_coord + CAR_H) >= (road[i] + ROAD_WIDTH) )
                     collision[i] <= 1'b1;
             end
         end
